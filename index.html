@@ -164,6 +164,13 @@
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
         }
 
+        /* Resaltado temporal para campos actualizados */
+        .updated {
+            border-color: #22c55e !important; /* verde */
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25) !important;
+            transition: box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+
         button {
             padding: 10px 18px;
             border: 1px solid transparent;
@@ -193,6 +200,29 @@
         .alert.success { background: #ecfdf5; color: #065f46; }
         .alert.error { background: #fef2f2; color: #7f1d1d; }
         .alert.info { background: #eff6ff; color: #1e3a8a; }
+
+        /* Toast notifications */
+        .toast-container {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 1000;
+        }
+        .toast {
+            background: #0b65d4;
+            color: #fff;
+            padding: 12px 14px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            font-weight: 600;
+            min-width: 220px;
+        }
+        .toast.success { background: #16a34a; }
+        .toast.error { background: #dc2626; }
+        .toast.info { background: #334155; }
 
         .card {
             background: var(--surface);
@@ -578,7 +608,6 @@
                 <div class="section" id="section-skills">
                     <div class="section-header" onclick="toggleSection('section-skills')">
                         <span class="section-title">📊 Análisis de Skills</span>
-                        <span class="badge">Interactividad</span>
                     </div>
                     <div class="section-body">
                         <div class="input-group">
@@ -608,7 +637,6 @@
             <div class="section" id="section-charts">
                 <div class="section-header" onclick="toggleSection('section-charts')">
                     <span class="section-title">📊 Gráficos</span>
-                    <span class="badge">Interactividad</span>
                 </div>
                 <div class="section-body">
                     <div class="grid">
@@ -640,6 +668,7 @@
             <span>JobMatcher Pro</span>
         </div>
     </div>
+    <div class="toast-container" id="toastContainer"></div>
     <script>
         const API = 'https://nontactical-leila-mispackaged.ngrok-free.dev';
         function getHeaders() {
@@ -658,6 +687,20 @@
             alert.className = `alert ${type}`;
             alert.style.display = 'block';
             setTimeout(() => alert.style.display = 'none', 5000);
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            const el = document.createElement('div');
+            el.className = `toast ${type}`;
+            el.textContent = message;
+            container.appendChild(el);
+            setTimeout(() => {
+                el.style.opacity = '0';
+                el.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => container.removeChild(el), 300);
+            }, 3000);
         }
         
         function loading(id) {
@@ -812,13 +855,54 @@
         }
         
         function saveProfile() {
-            currentProfile = {
-                skills: document.getElementById('skills').value.split(',').map(s => s.trim()),
-                years_experience: parseInt(document.getElementById('experience').value),
-                english_level: parseInt(document.getElementById('english').value),
-                sector: document.getElementById('sector').value
+            const prev = { ...(currentProfile || {}) };
+            const next = {
+                skills: (document.getElementById('skills').value || '').split(',').map(s => s.trim()).filter(Boolean),
+                years_experience: parseInt(document.getElementById('experience').value || '0'),
+                english_level: parseInt(document.getElementById('english').value || '0'),
+                sector: (document.getElementById('sector').value || '').trim()
             };
-            showAlert('profile', '✅ Perfil guardado', 'success');
+            currentProfile = next;
+
+            // Detectar campos modificados
+            const changed = [];
+            const eqArr = (a,b) => JSON.stringify((a||[]).map(String)) === JSON.stringify((b||[]).map(String));
+            if (!eqArr(prev.skills, next.skills)) changed.push('skills');
+            if ((prev.years_experience ?? null) !== next.years_experience) changed.push('años de experiencia');
+            if ((prev.english_level ?? null) !== next.english_level) changed.push('nivel de inglés');
+            if ((prev.sector ?? '').trim() !== next.sector) changed.push('sector');
+
+            if (changed.length > 0) {
+                const msg = `✅ Se actualizaron correctamente: ${changed.join(', ')}`;
+                // Mover alerta a la vista que se muestra tras guardar
+                // Redirigir a la vista de Perfil y mostrar cambios
+                displayUserProfile();
+                switchTab('login');
+                showAlert('login', msg, 'success');
+                showToast(msg, 'success');
+                // Resaltar temporalmente los campos actualizados
+                const fieldIds = {
+                    'skills': 'skills',
+                    'años de experiencia': 'experience',
+                    'nivel de inglés': 'english',
+                    'sector': 'sector'
+                };
+                changed.forEach(label => {
+                    const id = fieldIds[label];
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.classList.add('updated');
+                        setTimeout(() => el.classList.remove('updated'), 2000);
+                    }
+                });
+            } else {
+                // Redirigir y mostrar alerta en la vista visible
+                displayUserProfile();
+                switchTab('login');
+                showAlert('login', 'ℹ️ No hubo cambios', 'info');
+                showToast('No hubo cambios', 'info');
+            }
+            // Nota: la alerta ahora se muestra en la pestaña visible ('login')
         }
         
         async function getRecommendations() {
