@@ -27,33 +27,62 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            padding: 32px;
+            padding: 0;
         }
 
         .container {
-            max-width: 1100px;
-            margin: 0 auto;
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
             background: var(--surface);
             border-radius: 16px;
             border: 1px solid var(--border);
             box-shadow: 0 8px 24px rgba(0,0,0,0.06);
             overflow: hidden;
-            width: 100%;
-            flex: 1 0 auto;
+            display: flex;
+            flex-direction: column;
         }
 
         .header {
-            background: var(--surface);
+            background: linear-gradient(90deg, #ffffff 0%, #fffbe6 100%);
             border-bottom: 1px solid var(--border);
             color: var(--text);
-            padding: 20px 24px;
+            padding: 16px 20px;
             display: flex;
-            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
             align-items: center;
+            justify-content: space-between;
         }
-
-        .header h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: 0.2px; }
-        .status { background: #ebf2ff; color: var(--accent-600); padding: 6px 12px; border-radius: 999px; font-size: 0.85em; }
+        .brand {
+            display: flex; align-items: center; gap: 10px;
+        }
+        .brand h1 { font-size: 1.2rem; font-weight: 800; letter-spacing: 0.2px; }
+        .brand .pill { font-size: 0.8rem; padding: 4px 10px; border-radius: 999px; background: #eef2ff; color: var(--accent-600); border: 1px solid #e0e7ff; }
+        .nav {
+            display: flex; gap: 10px; justify-content: center; align-items: center; flex-wrap: wrap;
+        }
+        .nav .nav-item {
+            padding: 10px 14px; border-radius: 999px; border: 1px solid var(--border); background: #fff; cursor: pointer; font-weight: 600; color: var(--muted);
+        }
+        .nav .nav-item.active { background: #0b65d4; color: #fff; border-color: #0b65d4; }
+        .actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .status { background: #ebf2ff; color: var(--accent-600); padding: 8px 14px; border-radius: 999px; font-size: 0.9em; }
+        .profile-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 14px;
+            height: 36px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: #fff;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text);
+            line-height: 1;
+        }
+        .profile-btn:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
 
         .tabs {
             display: flex;
@@ -61,6 +90,7 @@
             background: var(--surface);
             border-bottom: 1px solid var(--border);
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .tab {
@@ -77,7 +107,41 @@
         .tab.active { color: var(--accent-600); background: #f9fafb; border-bottom-color: var(--accent); }
 
         .content { display: none; padding: 24px; }
-        .content.active { display: block; }
+        .content.active { display: block; flex: 1 1 auto; overflow: auto; }
+
+        /* Nuevas secciones y acordeones */
+        .section {
+            margin: 18px 0;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: #f9fafb;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .section-title {
+            font-weight: 700;
+            color: var(--accent-600);
+        }
+        .section-body {
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            background: var(--surface);
+        }
+        .section.collapsed .section-body { display: none; }
+
+        .actions-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0 18px 0;
+        }
 
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 16px; }
 
@@ -217,48 +281,182 @@
             justify-content: space-between;
             align-items: center;
             background: var(--surface);
-            max-width: 1100px;
             width: 100%;
-            margin: 0 auto;
             flex-shrink: 0;
         }
         .footer a { color: var(--accent-600); text-decoration: none; }
         .footer a:hover { text-decoration: underline; }
 
         /* Responsivo */
+        @media (max-width: 1024px) {
+            .brand, .nav, .actions { width: 100%; }
+            .brand { order: 1; }
+            .nav { order: 2; justify-content: flex-start; }
+            .actions { order: 3; justify-content: flex-start; }
+        }
         @media (max-width: 768px) {
-            body { padding: 16px; }
+            body { padding: 0; }
             .content { padding: 16px; }
-            .header { padding: 16px; }
+            .header { padding: 16px; gap: 10px; }
             .tabs { gap: 0; }
             .tab { padding: 10px 12px; }
             .grid { grid-template-columns: 1fr; }
             .footer { padding: 12px 16px; font-size: 0.85em; }
+            .nav .nav-item { padding: 8px 10px; }
+            .status { font-size: 0.8em; }
         }
-        @media (max-width: 420px) {
-            .header h1 { font-size: 1.1rem; }
-            button { width: 100%; margin: 8px 0 0 0; }
+        @media (max-width: 480px) {
+            .header h1 { font-size: 1.05rem; }
+            .pill { font-size: 0.75rem; }
+            .nav .nav-item { font-size: 0.9rem; }
+            .profile-btn { width: 36px; height: 36px; }
+            .card { padding: 14px; }
+            .btn { width: 100%; margin: 8px 0 0 0; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>JobMatcher Pro</h1>
-            <div class="status" id="status">Desconectado</div>
+            <div class="brand">
+                <span class="pill">JobMatcher Pro</span>
+                <h1>Bienvenido</h1>
+            </div>
+            <div class="nav">
+                <div class="nav-item active" onclick="switchTab('dashboard')">Dashboard</div>
+                <div class="nav-item" onclick="switchTab('search')">Búsqueda</div>
+                <div class="nav-item" onclick="switchTab('recommendations')">Recomendaciones</div>
+                <div class="nav-item" onclick="switchTab('details')">Detalles</div>
+                <div class="nav-item" onclick="switchTab('cv')">CV</div>
+            </div>
+            <div class="actions">
+                <div class="status" id="status">Desconectado</div>
+                <button class="profile-btn" title="Mi Perfil" aria-label="Mi Perfil" onclick="switchTab('login')">
+                    Perfil
+                </button>
+            </div>
         </div>
         
-        <div class="tabs">
-            <div class="tab active" onclick="switchTab('cv')">CV</div>
+        <!-- Tabs originales ocultables si se desea -->
+        <div class="tabs" style="display:none;">
+            <div class="tab" onclick="switchTab('login')">Login</div>
+            <div class="tab" onclick="switchTab('cv')">CV</div>
             <div class="tab" onclick="switchTab('profile')">Perfil</div>
             <div class="tab" onclick="switchTab('recommendations')">Recomendaciones</div>
             <div class="tab" onclick="switchTab('search')">Búsqueda</div>
             <div class="tab" onclick="switchTab('details')">Detalles</div>
-            <div class="tab" onclick="switchTab('dashboard')">Dashboard</div>
+            <div class="tab active" onclick="switchTab('dashboard')">Dashboard</div>
+        </div>
+
+        <!-- Login / Registro -->
+        <div id="tab-login" class="content">
+            <div id="loginForm">
+                <h2>Acceso</h2>
+                <div id="alert-login" class="alert"></div>
+                <div class="card" style="width:100%; margin:12px 0;">
+                    <div class="grid">
+                        <div class="input-group">
+                            <label>Email</label>
+                            <input type="email" id="loginEmail" placeholder="ejemplo@email.com" autocomplete="email">
+                        </div>
+                        <div class="input-group">
+                            <label>Contraseña</label>
+                            <div style="display:flex; gap:8px;">
+                                <input type="password" id="loginPassword" placeholder="••••••" autocomplete="current-password" style="flex:1;">
+                                <button class="btn-secondary" onclick="togglePassword('loginPassword')" title="Mostrar/Ocultar">👁️</button>
+                            </div>
+                            <div style="margin-top:6px; font-size:0.85em; color:#666;">Mínimo 6 caracteres</div>
+                        </div>
+                    </div>
+                    <div class="actions-bar">
+                        <button class="btn-primary" onclick="loginUser()">🔓 Iniciar Sesión</button>
+                        <button class="btn-secondary" onclick="showRegister()">📝 Crear cuenta</button>
+                        <button class="btn-secondary" onclick="resetLoginForm()">↺ Limpiar</button>
+                    </div>
+                </div>
+
+                <div id="registerCard" class="card" style="width:100%; display:none;">
+                    <h3>Registro</h3>
+                    <div class="grid">
+                        <div class="input-group">
+                            <label>Email</label>
+                            <input type="email" id="regEmail" placeholder="ejemplo@email.com" autocomplete="email">
+                        </div>
+                        <div class="input-group">
+                            <label>Contraseña</label>
+                            <div style="display:flex; gap:8px;">
+                                <input type="password" id="regPassword" placeholder="••••••" autocomplete="new-password" style="flex:1;">
+                                <button class="btn-secondary" onclick="togglePassword('regPassword')" title="Mostrar/Ocultar">👁️</button>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Confirmar contraseña</label>
+                            <div style="display:flex; gap:8px;">
+                                <input type="password" id="regPassword2" placeholder="••••••" autocomplete="new-password" style="flex:1;">
+                                <button class="btn-secondary" onclick="togglePassword('regPassword2')" title="Mostrar/Ocultar">👁️</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="actions-bar">
+                        <button class="btn-success" onclick="registerUser()">✅ Registrar</button>
+                        <button class="btn-secondary" onclick="hideRegister()">✖ Cancelar</button>
+                    </div>
+                    <div style="font-size:0.85em; color:#666; margin-top:8px;">Tu email servirá para guardar tu perfil y recomendaciones.</div>
+                </div>
+            </div>
+            
+            <div id="userProfile" style="display: none;">
+                <h2>Mi Perfil</h2>
+                <div id="alert-profile-view" class="alert"></div>
+                
+                <div class="card">
+                    <h3 style="color: var(--accent-600); margin-bottom: 16px;">📧 <span id="userEmail"></span></h3>
+                    
+                    <div style="margin: 16px 0;">
+                        <strong>💻 Skills:</strong><br>
+                        <div id="userSkills" style="margin-top: 8px;"></div>
+                    </div>
+                    
+                    <div class="grid" style="margin-top: 16px;">
+                        <div>
+                            <strong>📅 Experiencia:</strong><br>
+                            <span id="userExperience"></span> años
+                        </div>
+                        <div>
+                            <strong>🗣️ Nivel de Inglés:</strong><br>
+                            <span id="userEnglish"></span>/4
+                        </div>
+                        <div>
+                            <strong>🏢 Sector:</strong><br>
+                            <span id="userSector"></span>
+                        </div>
+                    </div>
+                    
+                    <div id="userEducationSection" style="margin-top: 16px; display: none;">
+                        <strong>🎓 Educación:</strong><br>
+                        <div id="userEducation" style="margin-top: 8px;"></div>
+                    </div>
+                    
+                    <div id="userRolesSection" style="margin-top: 16px; display: none;">
+                        <strong>💼 Roles Anteriores:</strong><br>
+                        <div id="userRoles" style="margin-top: 8px;"></div>
+                    </div>
+                    
+                    <div id="userCertsSection" style="margin-top: 16px; display: none;">
+                        <strong>📜 Certificaciones:</strong><br>
+                        <div id="userCerts" style="margin-top: 8px;"></div>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <button class="btn-secondary" onclick="editProfile()">✏️ Editar Perfil</button>
+                        <button class="btn-secondary" onclick="logoutUser()">🚪 Cerrar Sesión</button>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <!-- CV Upload -->
-        <div id="tab-cv" class="content active">
+        <div id="tab-cv" class="content">
             <h2>Subir CV (PDF)</h2>
             <div id="alert-cv" class="alert"></div>
             
@@ -352,57 +550,104 @@
         <div id="tab-details" class="content">
             <h2>Detalles & Análisis</h2>
             <div id="alert-details" class="alert"></div>
-            
+            <div class="actions-bar">
+                <input type="text" id="detailsJobId" class="" placeholder="Ingresa un job_id" style="flex:1; min-width:220px;">
+                <button class="btn-primary" onclick="getJobDetails()">📄 Ver Detalles</button>
+                <button class="btn-secondary" onclick="getSimilarJobs()">🔗 Ver Similares</button>
+            </div>
+
             <div class="input-group">
-                <label>Job ID</label>
-                <input type="text" id="detailsJobId" placeholder="Ingresa un job_id">
+                <label>Atajos rápidos</label>
+                <div class="grid">
+                    <button class="btn-secondary" onclick="if(currentJobId) window.open(`${API}/api/v1/job-details/${currentJobId}`,'_blank')">🌐 Abrir JSON Detalles</button>
+                    <button class="btn-secondary" onclick="if(currentJobId) window.open(`${API}/api/v1/similar-jobs/${currentJobId}?top_n=5`,'_blank')">🌐 Abrir JSON Similares</button>
+                </div>
             </div>
             
-            <button class="btn-primary" onclick="getJobDetails()">📄 Ver Detalles</button>
-            <button class="btn-secondary" onclick="getSimilarJobs()">🔗 Ver Similares</button>
-            
-            <div id="detailsResults"></div>
-            
-            <div id="skillMatchSection" style="display: none; margin-top: 20px;">
-                <h3>Análisis de Skills</h3>
-                <div class="input-group">
-                    <label>Tus Skills (separados por comas)</label>
-                    <input type="text" id="mySkills" placeholder="Python, JavaScript, AWS">
+            <div class="section" id="section-details">
+                <div class="section-header" onclick="toggleSection('section-details')">
+                    <span class="section-title">📄 Detalles del Empleo</span>
+                    <span class="badge">ID: <span id="detailsIdBadge">—</span></span>
                 </div>
-                <button class="btn-success" onclick="analyzeSkills()">📊 Analizar Match</button>
-                <div id="skillMatchResults"></div>
+                <div class="section-body">
+                    <div id="detailsResults"></div>
+                </div>
+            </div>
+
+            <div id="skillMatchSection" style="display: none; margin-top: 20px;">
+                <div class="section" id="section-skills">
+                    <div class="section-header" onclick="toggleSection('section-skills')">
+                        <span class="section-title">📊 Análisis de Skills</span>
+                        <span class="badge">Interactividad</span>
+                    </div>
+                    <div class="section-body">
+                        <div class="input-group">
+                            <label>Tus Skills (separados por comas)</label>
+                            <input type="text" id="mySkills" placeholder="Python, JavaScript, AWS">
+                        </div>
+                        <button class="btn-success" onclick="analyzeSkills()">📈 Analizar Match</button>
+                        <div id="skillMatchResults" style="margin-top:12px;"></div>
+                    </div>
+                </div>
             </div>
         </div>
         
         <!-- Dashboard -->
-        <div id="tab-dashboard" class="content">
+        <div id="tab-dashboard" class="content active">
             <h2>Dashboard</h2>
             <div id="alert-dashboard" class="alert"></div>
-            
-            <h3 style="margin-top: 20px;">Estadísticas generales</h3>
-            <div class="grid" id="statsGrid"></div>
-            
-            <h3 style="margin-top: 20px;">Top empresas</h3>
-            <div id="topCompanies"></div>
-            
-            <h3 style="margin-top: 20px;">Distribución de experiencia</h3>
-            <div id="scoreDistribution"></div>
-            
-            <h3 style="margin-top: 20px;">📋 Resumen</h3>
-            <div id="summary"></div>
+            <div class="section" id="section-kpis">
+                <div class="section-header" onclick="toggleSection('section-kpis')">
+                    <span class="section-title">📈 KPIs</span>
+                    <span class="badge">Resumen</span>
+                </div>
+                <div class="section-body">
+                    <div class="grid" id="statsGrid"></div>
+                </div>
+            </div>
+            <div class="section" id="section-charts">
+                <div class="section-header" onclick="toggleSection('section-charts')">
+                    <span class="section-title">📊 Gráficos</span>
+                    <span class="badge">Interactividad</span>
+                </div>
+                <div class="section-body">
+                    <div class="grid">
+                        <div class="card">
+                            <h4>Top empresas</h4>
+                            <div id="topCompanies"></div>
+                        </div>
+                        <div class="card">
+                            <h4>Distribución de experiencia</h4>
+                            <div id="scoreDistribution"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="section" id="section-summary">
+                <div class="section-header" onclick="toggleSection('section-summary')">
+                    <span class="section-title">📋 Resumen</span>
+                    <span class="badge">Datos</span>
+                </div>
+                <div class="section-body">
+                    <div id="summary"></div>
+                </div>
+            </div>
             
             <!-- Auto-carga al entrar al Dashboard, botón no necesario -->
         </div>
-    </div>
-
         <div class="footer">
             <span>Desarrollado por Los Cheveronazos</span>
             <span>JobMatcher Pro</span>
         </div>
-    
+    </div>
     <script>
         const API = 'https://nontactical-leila-mispackaged.ngrok-free.dev';
-        const h = { 'Accept': 'application/json', 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' };
+        function getHeaders() {
+            const base = { 'Accept': 'application/json', 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' };
+            const token = localStorage.getItem('authToken');
+            if (token) base['Authorization'] = 'Bearer ' + token;
+            return base;
+        }
         
         let currentProfile = { skills: ['Python', 'Flask'], years_experience: 2, english_level: 3, sector: 'Backend' };
         let currentJobId = '';
@@ -422,16 +667,52 @@
         function switchTab(name) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
-            document.querySelector(`.tab:nth-child(${['cv','profile','recommendations','search','details','dashboard'].indexOf(name)+1})`).classList.add('active');
+            document.querySelector(`.tab:nth-child(${['login','cv','profile','recommendations','search','details','dashboard'].indexOf(name)+1})`).classList.add('active');
             document.getElementById(`tab-${name}`).classList.add('active');
+            // Actualizar navegación del header (activar item correspondiente)
+            setActiveNav(name);
+            // Cambiar acento visual del header según sección
+            const header = document.querySelector('.header');
+            const gradientMap = {
+                dashboard: 'linear-gradient(90deg, #ffffff 0%, #fffbe6 100%)',
+                search: 'linear-gradient(90deg, #ffffff 0%, #e6f1ff 100%)',
+                recommendations: 'linear-gradient(90deg, #ffffff 0%, #e9fff5 100%)',
+                details: 'linear-gradient(90deg, #ffffff 0%, #f5f0ff 100%)',
+                cv: 'linear-gradient(90deg, #ffffff 0%, #fff1f1 100%)',
+                login: 'linear-gradient(90deg, #ffffff 0%, #f7faff 100%)',
+                profile: 'linear-gradient(90deg, #ffffff 0%, #f7faff 100%)'
+            };
+            header.style.background = gradientMap[name] || gradientMap['dashboard'];
             if (name === 'dashboard') {
                 loadDashboard();
             }
+            if (name === 'profile') {
+                // Si hay token y aún no se cargó perfil, intentar cargarlo
+                if (localStorage.getItem('authToken') && !currentProfile._loadedFromServer) {
+                    loadUserProfile();
+                }
+            }
+        }
+
+        // Activa la pastilla de navegación del header
+        function setActiveNav(name) {
+            const map = {
+                dashboard: 'Dashboard',
+                search: 'Búsqueda',
+                recommendations: 'Recomendaciones',
+                details: 'Detalles',
+                cv: 'CV'
+            };
+            const label = map[name];
+            document.querySelectorAll('.nav .nav-item').forEach(el => {
+                if (el.textContent.trim() === label) el.classList.add('active');
+                else el.classList.remove('active');
+            });
         }
         
         async function checkConnection() {
             try {
-                const res = await fetch(`${API}/api/v1/health`, { headers: h });
+                const res = await fetch(`${API}/api/v1/health`, { headers: getHeaders() });
                 const data = await res.json();
                 document.getElementById('status').innerHTML = `Conectado (${data.jobs_in_db.toLocaleString()} empleos)`;
                 return true;
@@ -455,9 +736,12 @@
                 const formData = new FormData();
                 formData.append('file', file);
                 
+                const uploadHeaders = { 'ngrok-skip-browser-warning': 'true' };
+                const token = localStorage.getItem('authToken');
+                if (token) uploadHeaders['Authorization'] = 'Bearer ' + token;
                 const res = await fetch(`${API}/api/v1/upload-cv`, {
                     method: 'POST',
-                    headers: { 'ngrok-skip-browser-warning': 'true' },
+                    headers: uploadHeaders,
                     body: formData
                 });
                 
@@ -465,18 +749,33 @@
                 
                 if (data.status === 'success') {
                     currentProfile = data.candidate_profile;
+                    currentProfile._loadedFromServer = false; // Marcar como nuevo
+                    
+                    // Mostrar resumen con todos los campos extraídos
+                    const educationHtml = (currentProfile.education && currentProfile.education.length > 0) 
+                        ? `<div style="margin: 10px 0;"><strong>Educación:</strong> ${currentProfile.education.map(e => `<span class="badge">${e}</span>`).join('')}</div>` 
+                        : '';
+                    const rolesHtml = (currentProfile.previous_roles && currentProfile.previous_roles.length > 0) 
+                        ? `<div style="margin: 10px 0;"><strong>Roles:</strong> ${currentProfile.previous_roles.map(r => `<span class="badge">${r}</span>`).join('')}</div>` 
+                        : '';
+                    const certsHtml = (currentProfile.certifications && currentProfile.certifications.length > 0) 
+                        ? `<div style="margin: 10px 0;"><strong>Certificaciones:</strong> ${currentProfile.certifications.map(c => `<span class="badge">${c}</span>`).join('')}</div>` 
+                        : '';
                     
                     document.getElementById('cvResults').innerHTML = `
                         <div class="card">
-                            <h3 style="color: var(--success);">CV procesado</h3>
+                            <h3 style="color: var(--success);">✅ CV procesado</h3>
                             <div style="margin: 15px 0;">
-                                <strong>Skills:</strong><br>
-                                ${currentProfile.skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}
+                                <strong>💻 Skills:</strong><br>
+                                ${(currentProfile.skills || []).map(s => `<span class="skill-tag">${s}</span>`).join('') || '<span class="badge">Sin skills detectadas</span>'}
                             </div>
-                            <div style="margin: 10px 0;"><strong>Experiencia:</strong> ${currentProfile.years_experience} años</div>
-                            <div style="margin: 10px 0;"><strong>Inglés:</strong> Nivel ${currentProfile.english_level}/4</div>
-                            <div style="margin: 10px 0;"><strong>Sector:</strong> ${currentProfile.sector}</div>
-                            <button class="btn-primary" onclick="useExtractedProfile()">🚀 Usar este perfil</button>
+                            <div style="margin: 10px 0;"><strong>📅 Experiencia:</strong> ${currentProfile.years_experience} años</div>
+                            <div style="margin: 10px 0;"><strong>🗣️ Inglés:</strong> Nivel ${currentProfile.english_level}/4</div>
+                            <div style="margin: 10px 0;"><strong>🏢 Sector:</strong> ${currentProfile.sector}</div>
+                            ${educationHtml}
+                            ${rolesHtml}
+                            ${certsHtml}
+                            <button class="btn-primary" onclick="useExtractedProfile()">💾 Guardar en mi perfil</button>
                         </div>
                     `;
                     
@@ -490,13 +789,26 @@
             }
         }
         
-        function useExtractedProfile() {
-            document.getElementById('skills').value = currentProfile.skills.join(', ');
-            document.getElementById('experience').value = currentProfile.years_experience;
-            document.getElementById('english').value = currentProfile.english_level;
-            document.getElementById('sector').value = currentProfile.sector;
-            switchTab('recommendations');
-            showAlert('recommendations', '✅ Perfil cargado desde CV', 'success');
+        async function useExtractedProfile() {
+            // Rellenar formulario de perfil
+            document.getElementById('skills').value = (currentProfile.skills || []).join(', ');
+            document.getElementById('experience').value = currentProfile.years_experience || 0;
+            document.getElementById('english').value = currentProfile.english_level || 0;
+            document.getElementById('sector').value = currentProfile.sector || 'Backend';
+            
+            // Si hay sesión activa, persistir automáticamente
+            if (localStorage.getItem('authToken')) {
+                await persistProfileIfAuth();
+                // Actualizar vista de perfil en tab Login
+                displayUserProfile();
+                showAlert('cv', '✅ Perfil guardado en tu cuenta', 'success');
+                // Ir a ver el perfil guardado
+                switchTab('login');
+            } else {
+                // Sin sesión, solo ir a recomendaciones
+                switchTab('recommendations');
+                showAlert('recommendations', '✅ Perfil cargado desde CV', 'success');
+            }
         }
         
         function saveProfile() {
@@ -518,7 +830,7 @@
                 const topN = parseInt(document.getElementById('topN').value);
                 const res = await fetch(`${API}/api/v1/recommend-from-profile?top_n=${topN}`, {
                     method: 'POST',
-                    headers: h,
+                    headers: getHeaders(),
                     body: JSON.stringify(currentProfile)
                 });
                 
@@ -567,10 +879,16 @@
             
             try {
                 const topN = parseInt(document.getElementById('searchTopN').value);
-                const res = await fetch(`${API}/api/v1/search-jobs?query=${encodeURIComponent(query)}&top_n=${topN}`, { headers: h });
-                const data = await res.json();
+                const res = await fetch(`${API}/api/v1/search-jobs?query=${encodeURIComponent(query)}&top_n=${topN}`, { headers: getHeaders() });
                 
-                if (data.status === 'success' && data.results.length > 0) {
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                }
+                
+                const data = await res.json();
+                console.log('Search response:', data);
+                
+                if (data.status === 'success' && data.results && data.results.length > 0) {
                     const html = data.results.map(j => `
                         <div class="card">
                             <div class="job-title">${j.position}</div>
@@ -586,9 +904,11 @@
                     document.getElementById('searchResults').innerHTML = html;
                     showAlert('search', `✅ ${data.total} resultados`, 'success');
                 } else {
-                    throw new Error('Sin resultados');
+                    document.getElementById('searchResults').innerHTML = '<div class="card">No se encontraron resultados</div>';
+                    showAlert('search', '⚠️ Sin resultados', 'info');
                 }
             } catch (e) {
+                console.error('Search error:', e);
                 showAlert('search', `❌ Error: ${e.message}`, 'error');
                 document.getElementById('searchResults').innerHTML = '';
             }
@@ -610,13 +930,38 @@
             
             currentJobId = jobId;
             loading('detailsResults');
+            document.getElementById('detailsIdBadge').textContent = jobId;
             
             try {
-                const res = await fetch(`${API}/api/v1/job-details/${jobId}`, { headers: h });
+                const res = await fetch(`${API}/api/v1/job-details/${jobId}`, { headers: getHeaders() });
                 const data = await res.json();
                 
                 if (data.status === 'success') {
                     const j = data.job;
+                    // Intentar derivar lista de skills desde posibles campos
+                    let skillsList = j.skills ?? j.skills_required ?? j.required_skills ?? [];
+                    if (typeof skillsList === 'string') {
+                        skillsList = skillsList.split(',').map(s => s.trim()).filter(Boolean);
+                    }
+                    if (!Array.isArray(skillsList)) skillsList = [];
+                    
+                    // Si aún no hay skills, intentar obtenerlas vía endpoint de match (solo para leer required_skills)
+                    if (!skillsList.length && currentJobId) {
+                        try {
+                            const mres = await fetch(`${API}/api/v1/job-skill-match/${currentJobId}`, {
+                                method: 'POST',
+                                headers: getHeaders(),
+                                body: JSON.stringify({ skills: [] })
+                            });
+                            const mdata = await mres.json();
+                            if (mdata && (mdata.required_skills || mdata.skills_required)) {
+                                let rs = mdata.required_skills ?? mdata.skills_required ?? [];
+                                if (typeof rs === 'string') rs = rs.split(',').map(s => s.trim()).filter(Boolean);
+                                if (Array.isArray(rs)) skillsList = rs;
+                            }
+                        } catch (e) { /* ignorar errores de lectura del match */ }
+                    }
+                    
                     document.getElementById('detailsResults').innerHTML = `
                         <div class="card">
                             <div class="job-title">${j.position}</div>
@@ -633,7 +978,10 @@
                             </div>
                             <div style="margin: 15px 0;">
                                 <strong>💻 Skills:</strong><br>
-                                ${j.skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}
+                                ${(skillsList.length
+                                    ? skillsList.map(s => `<span class="skill-tag">${s}</span>`).join('')
+                                    : '<span class="badge" style="background:#f3f4f6;color:var(--muted);">Sin skills listadas</span>'
+                                )}
                             </div>
                         </div>
                     `;
@@ -649,6 +997,12 @@
                 document.getElementById('detailsResults').innerHTML = '';
             }
         }
+
+        function toggleSection(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.classList.toggle('collapsed');
+        }
         
         async function getSimilarJobs() {
             const jobId = document.getElementById('detailsJobId').value.trim();
@@ -660,10 +1014,16 @@
             loading('detailsResults');
             
             try {
-                const res = await fetch(`${API}/api/v1/similar-jobs/${jobId}?top_n=5`, { headers: h });
-                const data = await res.json();
+                const res = await fetch(`${API}/api/v1/similar-jobs/${jobId}?top_n=5`, { headers: getHeaders() });
                 
-                if (data.status === 'success' && data.similar_jobs.length > 0) {
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                }
+                
+                const data = await res.json();
+                console.log('Similar jobs response:', data);
+                
+                if (data.status === 'success' && data.similar_jobs && data.similar_jobs.length > 0) {
                     const html = data.similar_jobs.map(j => `
                         <div class="card">
                             <div class="job-title">${j.position}</div>
@@ -678,9 +1038,11 @@
                     document.getElementById('detailsResults').innerHTML = html;
                     showAlert('details', `✅ ${data.total} empleos similares`, 'success');
                 } else {
-                    throw new Error('Sin resultados');
+                    document.getElementById('detailsResults').innerHTML = '<div class="card">No se encontraron empleos similares</div>';
+                    showAlert('details', '⚠️ Sin empleos similares', 'info');
                 }
             } catch (e) {
+                console.error('Similar jobs error:', e);
                 showAlert('details', `❌ Error: ${e.message}`, 'error');
                 document.getElementById('detailsResults').innerHTML = '';
             }
@@ -693,7 +1055,7 @@
             try {
                 const res = await fetch(`${API}/api/v1/job-skill-match/${currentJobId}`, {
                     method: 'POST',
-                    headers: h,
+                    headers: getHeaders(),
                     body: JSON.stringify({ skills })
                 });
                 
@@ -722,12 +1084,10 @@
             }
         }
         
-        async function loadDashboard() {
-            showAlert('dashboard', '⏳ Cargando dashboard...', 'info');
-            
+        async function loadDashboard() {            
             // Stats
             try {
-                const res = await fetch(`${API}/api/v1/stats`, { headers: h });
+            const res = await fetch(`${API}/api/v1/stats`, { headers: getHeaders() });
                 const data = await res.json();
                 
                 document.getElementById('statsGrid').innerHTML = `
@@ -740,7 +1100,7 @@
             
             // Top Companies
             try {
-                const res = await fetch(`${API}/api/v1/dashboard/top-companies?top_n=5`, { headers: h });
+                const res = await fetch(`${API}/api/v1/dashboard/top-companies?top_n=5`, { headers: getHeaders() });
                 const data = await res.json();
                 
                 const html = Object.entries(data.top_companies).map(([company, count], i) => `
@@ -755,7 +1115,7 @@
             
             // Score Distribution
             try {
-                const res = await fetch(`${API}/api/v1/dashboard/score-distribution`, { headers: h });
+                const res = await fetch(`${API}/api/v1/dashboard/score-distribution`, { headers: getHeaders() });
                 const data = await res.json();
                 
                 const html = Object.entries(data.score_distribution_by_exp_years).map(([range, count]) => `
@@ -770,7 +1130,7 @@
             
             // Summary
             try {
-                const res = await fetch(`${API}/api/v1/dashboard/recommendations-summary`, { headers: h });
+                const res = await fetch(`${API}/api/v1/dashboard/recommendations-summary`, { headers: getHeaders() });
                 const data = await res.json();
                 
                 document.getElementById('summary').innerHTML = `
@@ -783,12 +1143,290 @@
                 `;
             } catch (e) {}
         }
+        // --- Autenticación ---
+        async function registerUser() {
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value.trim();
+            const password2 = document.getElementById('regPassword2').value.trim();
+            if (!email || !password || !password2) { showAlert('login', 'Completa todos los campos', 'error'); return; }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showAlert('login', 'Email inválido', 'error'); return; }
+            if (password.length < 6) { showAlert('login', 'La contraseña debe tener al menos 6 caracteres', 'error'); return; }
+            if (password !== password2) { showAlert('login', 'Las contraseñas no coinciden', 'error'); return; }
+            try {
+                const res = await fetch(`${API}/api/v1/register`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    showAlert('login', 'Registro exitoso. Inicia sesión con tus credenciales.', 'success');
+                    hideRegister();
+                    document.getElementById('loginEmail').value = email;
+                } else {
+                    throw new Error(data.message || 'Error de registro');
+                }
+            } catch (e) {
+                showAlert('login', 'Error: ' + e.message, 'error');
+            }
+        }
+
+        async function loginUser() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            if (!email || !password) { showAlert('login', 'Ingresa email y contraseña', 'error'); return; }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showAlert('login', 'Email inválido', 'error'); return; }
+            try {
+                const res = await fetch(`${API}/api/v1/login`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if (data.status === 'success' && data.token) {
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('userEmail', email);
+                    showAlert('login', 'Login correcto', 'success');
+                    await loadUserProfile();
+                    displayUserProfile();
+                } else {
+                    throw new Error(data.message || 'Credenciales inválidas');
+                }
+            } catch (e) {
+                showAlert('login', 'Error: ' + e.message, 'error');
+            }
+        }
+
+        // Helpers Login/Registro
+        function togglePassword(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.type = el.type === 'password' ? 'text' : 'password';
+        }
+        function showRegister() {
+            document.getElementById('registerCard').style.display = 'block';
+        }
+        function hideRegister() {
+            document.getElementById('registerCard').style.display = 'none';
+        }
+        function resetLoginForm() {
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
+        }
+        
+        function displayUserProfile() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('userProfile').style.display = 'block';
+            
+            const email = localStorage.getItem('userEmail') || 'usuario@email.com';
+            document.getElementById('userEmail').textContent = email;
+            
+            // Skills
+            const skills = currentProfile.skills || [];
+            const skillsHtml = skills.length > 0 
+                ? skills.map(s => `<span class="skill-tag">${s}</span>`).join('')
+                : '<span class="badge" style="background:#f3f4f6;color:var(--muted);">Sin skills registradas</span>';
+            document.getElementById('userSkills').innerHTML = skillsHtml;
+            
+            // Experiencia, Inglés, Sector
+            document.getElementById('userExperience').textContent = currentProfile.years_experience || 0;
+            document.getElementById('userEnglish').textContent = currentProfile.english_level || 0;
+            document.getElementById('userSector').textContent = currentProfile.sector || 'Sin especificar';
+            
+            // Education
+            const education = currentProfile.education || [];
+            if (education.length > 0) {
+                document.getElementById('userEducationSection').style.display = 'block';
+                document.getElementById('userEducation').innerHTML = education.map(e => `<span class="badge">${e}</span>`).join('');
+            } else {
+                document.getElementById('userEducationSection').style.display = 'none';
+            }
+            
+            // Roles
+            const roles = currentProfile.previous_roles || [];
+            if (roles.length > 0) {
+                document.getElementById('userRolesSection').style.display = 'block';
+                document.getElementById('userRoles').innerHTML = roles.map(r => `<span class="badge">${r}</span>`).join('');
+            } else {
+                document.getElementById('userRolesSection').style.display = 'none';
+            }
+            
+            // Certificaciones
+            const certs = currentProfile.certifications || [];
+            if (certs.length > 0) {
+                document.getElementById('userCertsSection').style.display = 'block';
+                document.getElementById('userCerts').innerHTML = certs.map(c => `<span class="badge">${c}</span>`).join('');
+            } else {
+                document.getElementById('userCertsSection').style.display = 'none';
+            }
+        }
+        
+        function editProfile() {
+            switchTab('profile');
+        }
+        
+        function logoutUser() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userEmail');
+            currentProfile = { skills: [], years_experience: 0, english_level: 0, sector: '' };
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('userProfile').style.display = 'none';
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
+            showAlert('login', 'Sesión cerrada', 'success');
+        }
+
+        async function loadUserProfile() {
+            try {
+                const res = await fetch(`${API}/api/v1/me`, { headers: getHeaders() });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    if (data.profile) {
+                        // Perfil existe en servidor
+                        currentProfile = data.profile;
+                        currentProfile._loadedFromServer = true;
+                        // Rellenar formulario perfil
+                        document.getElementById('skills').value = (currentProfile.skills || []).join(', ');
+                        document.getElementById('experience').value = currentProfile.years_experience || 0;
+                        document.getElementById('english').value = currentProfile.english_level || 0;
+                        document.getElementById('sector').value = currentProfile.sector || 'Backend';
+                    } else {
+                        // No hay perfil guardado, usar valores por defecto
+                        currentProfile = {
+                            skills: [],
+                            years_experience: 0,
+                            english_level: 0,
+                            sector: 'Sin especificar',
+                            education: [],
+                            previous_roles: [],
+                            certifications: [],
+                            _loadedFromServer: true
+                        };
+                    }
+                }
+            } catch (e) {
+                console.warn('No se pudo cargar perfil:', e.message);
+                // Perfil por defecto en caso de error
+                currentProfile = {
+                    skills: [],
+                    years_experience: 0,
+                    english_level: 0,
+                    sector: 'Sin especificar',
+                    education: [],
+                    previous_roles: [],
+                    certifications: []
+                };
+            }
+        }
+
+        async function persistProfileIfAuth() {
+            if (!localStorage.getItem('authToken')) return; // no auth
+            try {
+                // Preparar payload limpio sin campos internos
+                const payload = {
+                    skills: currentProfile.skills || [],
+                    years_experience: currentProfile.years_experience || 0,
+                    english_level: currentProfile.english_level || 0,
+                    sector: currentProfile.sector || 'Backend',
+                    education: currentProfile.education || [],
+                    previous_roles: currentProfile.previous_roles || [],
+                    certifications: currentProfile.certifications || []
+                };
+                
+                const res = await fetch(`${API}/api/v1/profile`, {
+                    method: 'PUT',
+                    headers: getHeaders(),
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    showAlert('profile', '✅ Perfil guardado en el servidor', 'success');
+                    // Actualizar currentProfile con los datos guardados
+                    currentProfile = { ...payload, _loadedFromServer: true };
+                }
+            } catch (e) {
+                console.warn('Persistencia fallida:', e.message);
+                showAlert('profile', '⚠️ No se pudo guardar en servidor', 'error');
+            }
+        }
+
+        // Extender saveProfile para persistir si autenticado
+        const originalSaveProfile = saveProfile;
+        saveProfile = async function() {
+            originalSaveProfile();
+            await persistProfileIfAuth();
+        }
+
         
         // Init
-        window.addEventListener('load', () => {
+        window.addEventListener('load', async () => {
             checkConnection();
             setInterval(checkConnection, 30000);
+            // Si ya hay token intenta cargar perfil
+            if (localStorage.getItem('authToken')) {
+                await loadUserProfile();
+                displayUserProfile();
+            }
+            // Mostrar Dashboard por defecto
+            switchTab('dashboard');
         });
     </script>
 </body>
 </html>
+
+<!-- Debug console logger: intercept fetch to log requests/responses -->
+<script>
+    (function() {
+        const origFetch = window.fetch;
+        window.fetch = async function(input, init = {}) {
+            try {
+                const url = typeof input === 'string' ? input : (input && input.url) || '';
+                const method = (init && init.method) || 'GET';
+                let bodyPreview = '';
+                if (init && init.body) {
+                    try { bodyPreview = typeof init.body === 'string' ? init.body : JSON.stringify(init.body); } catch (e) { bodyPreview = '[body unserializable]'; }
+                }
+                console.log('[HTTP]', method, url);
+                if (bodyPreview) console.log('[HTTP BODY]', bodyPreview);
+                const res = await origFetch(input, init);
+                console.log('[HTTP RES]', method, url, res.status, res.statusText);
+                const contentType = res.headers.get('content-type') || '';
+                if (contentType.includes('application/json')) {
+                    // Clone response to avoid consuming body
+                    const cloned = res.clone();
+                    try {
+                        const json = await cloned.json();
+                        console.log('[HTTP JSON]', method, url, json);
+                    } catch (e) {
+                        console.warn('[HTTP JSON parse error]', e);
+                    }
+                } else {
+                    try {
+                        const cloned = res.clone();
+                        const text = await cloned.text();
+                        console.log('[HTTP TEXT]', method, url, text.slice(0, 1000));
+                    } catch (e) {
+                        console.warn('[HTTP TEXT read error]', e);
+                    }
+                }
+                return res;
+            } catch (err) {
+                console.error('[HTTP ERR]', err);
+                throw err;
+            }
+        };
+
+        // Log global errors
+        window.addEventListener('error', function(e) {
+            console.error('[WINDOW ERROR]', e.message, e.filename, e.lineno, e.colno, e.error);
+        });
+        window.addEventListener('unhandledrejection', function(e) {
+            console.error('[UNHANDLED REJECTION]', e.reason);
+        });
+
+        // Helper to expose quick logging from UI actions
+        window.debugLog = function(label, data) {
+            try { console.log('[DEBUG]', label, data); } catch (e) { console.log('[DEBUG]', label); }
+        };
+    })();
+</script>
