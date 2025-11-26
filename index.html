@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobMatcher Pro</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .status { background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; font-size: 0.9em; }
+        
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            overflow-x: auto;
+        }
+        
+        .tab {
+            padding: 15px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .tab:hover { background: #e9ecef; }
+        .tab.active { color: #667eea; background: white; border-bottom-color: #667eea; }
+        
+        .content { display: none; padding: 30px; }
+        .content.active { display: block; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: 500; color: #333; }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 8px rgba(102, 126, 234, 0.2);
+        }
+        
+        button {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+        
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); }
+        
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        
+        .alert {
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        
+        .alert.success { background: #d4edda; color: #155724; }
+        .alert.error { background: #f8d7da; color: #721c24; }
+        .alert.info { background: #d1ecf1; color: #0c5460; }
+        
+        .card {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        
+        .job-title { font-size: 1.2em; font-weight: bold; color: #333; margin-bottom: 5px; }
+        .job-company { color: #666; margin-bottom: 10px; }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            margin-right: 8px;
+        }
+        
+        .badge-high { background: #d4edda; color: #155724; }
+        .badge-medium { background: #fff3cd; color: #856404; }
+        .badge-low { background: #f8d7da; color: #721c24; }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-value { font-size: 2em; font-weight: bold; }
+        .stat-label { font-size: 0.9em; opacity: 0.9; margin-top: 5px; }
+        
+        .loading { text-align: center; padding: 30px; color: #666; }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .upload-zone {
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-zone:hover { background: #e9ecef; border-color: #764ba2; }
+        
+        .skill-tag {
+            display: inline-block;
+            background: #e7f5ff;
+            color: #667eea;
+            padding: 4px 10px;
+            border-radius: 15px;
+            margin: 3px;
+            font-size: 0.85em;
+        }
+        
+        .results { max-height: 500px; overflow-y: auto; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 JobMatcher Pro</h1>
+            <div class="status" id="status">🔴 Desconectado</div>
+        </div>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('cv')">📄 CV</div>
+            <div class="tab" onclick="switchTab('profile')">👤 Perfil</div>
+            <div class="tab" onclick="switchTab('recommendations')">⭐ Recomendaciones</div>
+            <div class="tab" onclick="switchTab('search')">🔍 Búsqueda</div>
+            <div class="tab" onclick="switchTab('details')">📋 Detalles</div>
+            <div class="tab" onclick="switchTab('dashboard')">📊 Dashboard</div>
+        </div>
+        
+        <!-- CV Upload -->
+        <div id="tab-cv" class="content active">
+            <h2>📄 Subir CV (PDF)</h2>
+            <div id="alert-cv" class="alert"></div>
+            
+            <div class="upload-zone" onclick="document.getElementById('cvFile').click()">
+                <div style="font-size: 3em; margin-bottom: 15px;">📤</div>
+                <h3>Sube tu CV en PDF</h3>
+                <p style="color: #666; margin-top: 10px;">Extraeremos automáticamente: skills, experiencia, inglés y sector</p>
+                <input type="file" id="cvFile" accept=".pdf" style="display: none;" onchange="uploadCV()">
+            </div>
+            
+            <div id="cvResults"></div>
+        </div>
+        
+        <!-- Profile -->
+        <div id="tab-profile" class="content">
+            <h2>👤 Crear Perfil Manual</h2>
+            <div id="alert-profile" class="alert"></div>
+            
+            <div class="grid">
+                <div class="input-group">
+                    <label>Skills (separados por comas)</label>
+                    <input type="text" id="skills" placeholder="Python, JavaScript, AWS" value="Python, Flask">
+                </div>
+                
+                <div class="input-group">
+                    <label>Años de Experiencia</label>
+                    <input type="number" id="experience" min="0" max="20" value="2">
+                </div>
+                
+                <div class="input-group">
+                    <label>Nivel de Inglés (0-4)</label>
+                    <select id="english">
+                        <option value="0">0 - Sin inglés</option>
+                        <option value="1">1 - Básico</option>
+                        <option value="2">2 - Intermedio</option>
+                        <option value="3" selected>3 - Avanzado</option>
+                        <option value="4">4 - Fluido</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label>Sector</label>
+                    <select id="sector">
+                        <option value="Backend" selected>Backend</option>
+                        <option value="Frontend">Frontend</option>
+                        <option value="Full Stack">Full Stack</option>
+                        <option value="DevOps">DevOps</option>
+                        <option value="Data">Data Science</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button class="btn-success" onclick="saveProfile()">💾 Guardar Perfil</button>
+        </div>
+        
+        <!-- Recommendations -->
+        <div id="tab-recommendations" class="content">
+            <h2>⭐ Recomendaciones</h2>
+            <div id="alert-recommendations" class="alert"></div>
+            
+            <div class="input-group">
+                <label>Top N Resultados</label>
+                <input type="number" id="topN" min="1" max="50" value="10">
+            </div>
+            
+            <button class="btn-primary" onclick="getRecommendations()">🚀 Obtener Recomendaciones</button>
+            
+            <div class="results" id="recommendationsResults"></div>
+        </div>
+        
+        <!-- Search -->
+        <div id="tab-search" class="content">
+            <h2>🔍 Búsqueda Semántica</h2>
+            <div id="alert-search" class="alert"></div>
+            
+            <div class="input-group">
+                <label>Consulta</label>
+                <textarea id="searchQuery" rows="3" placeholder="Ej: desarrollador python con machine learning"></textarea>
+            </div>
+            
+            <div class="input-group">
+                <label>Top N Resultados</label>
+                <input type="number" id="searchTopN" min="1" max="50" value="10">
+            </div>
+            
+            <button class="btn-primary" onclick="searchJobs()">🔍 Buscar</button>
+            
+            <div class="results" id="searchResults"></div>
+        </div>
+        
+        <!-- Details -->
+        <div id="tab-details" class="content">
+            <h2>📋 Detalles & Análisis</h2>
+            <div id="alert-details" class="alert"></div>
+            
+            <div class="input-group">
+                <label>Job ID</label>
+                <input type="text" id="detailsJobId" placeholder="Ingresa un job_id">
+            </div>
+            
+            <button class="btn-primary" onclick="getJobDetails()">📄 Ver Detalles</button>
+            <button class="btn-secondary" onclick="getSimilarJobs()">🔗 Ver Similares</button>
+            
+            <div id="detailsResults"></div>
+            
+            <div id="skillMatchSection" style="display: none; margin-top: 20px;">
+                <h3>💻 Análisis de Skills</h3>
+                <div class="input-group">
+                    <label>Tus Skills (separados por comas)</label>
+                    <input type="text" id="mySkills" placeholder="Python, JavaScript, AWS">
+                </div>
+                <button class="btn-success" onclick="analyzeSkills()">📊 Analizar Match</button>
+                <div id="skillMatchResults"></div>
+            </div>
+        </div>
+        
+        <!-- Dashboard -->
+        <div id="tab-dashboard" class="content">
+            <h2>📊 Dashboard</h2>
+            <div id="alert-dashboard" class="alert"></div>
+            
+            <h3 style="margin-top: 20px;">Estadísticas Generales</h3>
+            <div class="grid" id="statsGrid"></div>
+            
+            <h3 style="margin-top: 20px;">🏢 Top Empresas</h3>
+            <div id="topCompanies"></div>
+            
+            <h3 style="margin-top: 20px;">📈 Distribución de Experiencia</h3>
+            <div id="scoreDistribution"></div>
+            
+            <h3 style="margin-top: 20px;">📋 Resumen</h3>
+            <div id="summary"></div>
+            
+            <button class="btn-primary" onclick="loadDashboard()">🔄 Actualizar</button>
+        </div>
+    </div>
+    
+    <script>
+        const API = 'https://nontactical-leila-mispackaged.ngrok-free.dev';
+        const h = { 'Accept': 'application/json', 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' };
+        
+        let currentProfile = { skills: ['Python', 'Flask'], years_experience: 2, english_level: 3, sector: 'Backend' };
+        let currentJobId = '';
+        
+        function showAlert(tab, msg, type = 'success') {
+            const alert = document.getElementById(`alert-${tab}`);
+            alert.textContent = msg;
+            alert.className = `alert ${type}`;
+            alert.style.display = 'block';
+            setTimeout(() => alert.style.display = 'none', 5000);
+        }
+        
+        function loading(id) {
+            document.getElementById(id).innerHTML = '<div class="loading"><div class="spinner"></div><p>Cargando...</p></div>';
+        }
+        
+        function switchTab(name) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+            document.querySelector(`.tab:nth-child(${['cv','profile','recommendations','search','details','dashboard'].indexOf(name)+1})`).classList.add('active');
+            document.getElementById(`tab-${name}`).classList.add('active');
+        }
+        
+        async function checkConnection() {
+            try {
+                const res = await fetch(`${API}/api/v1/health`, { headers: h });
+                const data = await res.json();
+                document.getElementById('status').innerHTML = `🟢 Conectado (${data.jobs_in_db.toLocaleString()} empleos)`;
+                return true;
+            } catch (e) {
+                document.getElementById('status').innerHTML = '🔴 Desconectado';
+                return false;
+            }
+        }
+        
+        async function uploadCV() {
+            const file = document.getElementById('cvFile').files[0];
+            if (!file || !file.name.endsWith('.pdf')) {
+                showAlert('cv', '❌ Sube un archivo PDF', 'error');
+                return;
+            }
+            
+            loading('cvResults');
+            showAlert('cv', '⏳ Procesando CV...', 'info');
+            
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                const res = await fetch(`${API}/api/v1/upload-cv`, {
+                    method: 'POST',
+                    headers: { 'ngrok-skip-browser-warning': 'true' },
+                    body: formData
+                });
+                
+                const data = await res.json();
+                
+                if (data.status === 'success') {
+                    currentProfile = data.candidate_profile;
+                    
+                    document.getElementById('cvResults').innerHTML = `
+                        <div class="card">
+                            <h3 style="color: #28a745;">✅ CV Procesado</h3>
+                            <div style="margin: 15px 0;">
+                                <strong>💻 Skills:</strong><br>
+                                ${currentProfile.skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}
+                            </div>
+                            <div style="margin: 10px 0;"><strong>📅 Experiencia:</strong> ${currentProfile.years_experience} años</div>
+                            <div style="margin: 10px 0;"><strong>🗣️ Inglés:</strong> Nivel ${currentProfile.english_level}/4</div>
+                            <div style="margin: 10px 0;"><strong>🏢 Sector:</strong> ${currentProfile.sector}</div>
+                            <button class="btn-primary" onclick="useExtractedProfile()">🚀 Usar este perfil</button>
+                        </div>
+                    `;
+                    
+                    showAlert('cv', '✅ CV procesado exitosamente', 'success');
+                } else {
+                    throw new Error(data.message || 'Error');
+                }
+            } catch (e) {
+                showAlert('cv', `❌ Error: ${e.message}`, 'error');
+                document.getElementById('cvResults').innerHTML = '';
+            }
+        }
+        
+        function useExtractedProfile() {
+            document.getElementById('skills').value = currentProfile.skills.join(', ');
+            document.getElementById('experience').value = currentProfile.years_experience;
+            document.getElementById('english').value = currentProfile.english_level;
+            document.getElementById('sector').value = currentProfile.sector;
+            switchTab('recommendations');
+            showAlert('recommendations', '✅ Perfil cargado desde CV', 'success');
+        }
+        
+        function saveProfile() {
+            currentProfile = {
+                skills: document.getElementById('skills').value.split(',').map(s => s.trim()),
+                years_experience: parseInt(document.getElementById('experience').value),
+                english_level: parseInt(document.getElementById('english').value),
+                sector: document.getElementById('sector').value
+            };
+            showAlert('profile', '✅ Perfil guardado', 'success');
+        }
+        
+        async function getRecommendations() {
+            saveProfile();
+            loading('recommendationsResults');
+            showAlert('recommendations', '⏳ Obteniendo recomendaciones...', 'info');
+            
+            try {
+                const topN = parseInt(document.getElementById('topN').value);
+                const res = await fetch(`${API}/api/v1/recommend-from-profile?top_n=${topN}`, {
+                    method: 'POST',
+                    headers: h,
+                    body: JSON.stringify(currentProfile)
+                });
+                
+                const data = await res.json();
+                
+                if (data.status === 'success' && data.recommendations.length > 0) {
+                    const html = data.recommendations.map(r => `
+                        <div class="card">
+                            <div class="job-title">${r.position}</div>
+                            <div class="job-company">📍 ${r.company}</div>
+                            <div>
+                                <span class="badge ${r.match_score >= 80 ? 'badge-high' : r.match_score >= 60 ? 'badge-medium' : 'badge-low'}">
+                                    Score: ${r.match_score}/100
+                                </span>
+                                <span class="badge">Skills: ${r.skills_match}/40</span>
+                                <span class="badge">Exp: ${r.exp_match}/30</span>
+                                <span class="badge">Inglés: ${r.english_match}/20</span>
+                            </div>
+                            <div style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                                💼 ${r.exp_required} años | 🗣️ Inglés ${r.english_required}/4
+                            </div>
+                            <button class="btn-secondary" onclick="viewJob('${r.job_id}')">Ver Detalles</button>
+                        </div>
+                    `).join('');
+                    
+                    document.getElementById('recommendationsResults').innerHTML = html;
+                    showAlert('recommendations', `✅ ${data.total} empleos encontrados`, 'success');
+                } else {
+                    throw new Error('Sin resultados');
+                }
+            } catch (e) {
+                showAlert('recommendations', `❌ Error: ${e.message}`, 'error');
+                document.getElementById('recommendationsResults').innerHTML = '';
+            }
+        }
+        
+        async function searchJobs() {
+            const query = document.getElementById('searchQuery').value.trim();
+            if (!query) {
+                showAlert('search', '❌ Ingresa una consulta', 'error');
+                return;
+            }
+            
+            loading('searchResults');
+            showAlert('search', '⏳ Buscando...', 'info');
+            
+            try {
+                const topN = parseInt(document.getElementById('searchTopN').value);
+                const res = await fetch(`${API}/api/v1/search-jobs?query=${encodeURIComponent(query)}&top_n=${topN}`, { headers: h });
+                const data = await res.json();
+                
+                if (data.status === 'success' && data.results.length > 0) {
+                    const html = data.results.map(j => `
+                        <div class="card">
+                            <div class="job-title">${j.position}</div>
+                            <div class="job-company">📍 ${j.company}</div>
+                            <div>
+                                <span class="badge badge-high">Similitud: ${(j.similarity_score * 100).toFixed(1)}%</span>
+                            </div>
+                            <div style="margin-top: 10px; color: #666; font-size: 0.9em;">${j.description}</div>
+                            <button class="btn-secondary" onclick="viewJob('${j.job_id}')">Ver Detalles</button>
+                        </div>
+                    `).join('');
+                    
+                    document.getElementById('searchResults').innerHTML = html;
+                    showAlert('search', `✅ ${data.total} resultados`, 'success');
+                } else {
+                    throw new Error('Sin resultados');
+                }
+            } catch (e) {
+                showAlert('search', `❌ Error: ${e.message}`, 'error');
+                document.getElementById('searchResults').innerHTML = '';
+            }
+        }
+        
+        function viewJob(jobId) {
+            currentJobId = jobId;
+            document.getElementById('detailsJobId').value = jobId;
+            switchTab('details');
+            getJobDetails();
+        }
+        
+        async function getJobDetails() {
+            const jobId = document.getElementById('detailsJobId').value.trim();
+            if (!jobId) {
+                showAlert('details', '❌ Ingresa un Job ID', 'error');
+                return;
+            }
+            
+            currentJobId = jobId;
+            loading('detailsResults');
+            
+            try {
+                const res = await fetch(`${API}/api/v1/job-details/${jobId}`, { headers: h });
+                const data = await res.json();
+                
+                if (data.status === 'success') {
+                    const j = data.job;
+                    document.getElementById('detailsResults').innerHTML = `
+                        <div class="card">
+                            <div class="job-title">${j.position}</div>
+                            <div class="job-company">🏢 ${j.company}</div>
+                            <div style="margin: 15px 0;">
+                                <strong>📋 Descripción:</strong><br>
+                                <p style="line-height: 1.6; margin-top: 8px;">${j.description}</p>
+                            </div>
+                            <div style="margin: 15px 0;">
+                                <strong>📊 Requisitos:</strong><br>
+                                💼 Experiencia: ${j.exp_required} años<br>
+                                🗣️ Inglés: ${j.english_required}/4<br>
+                                🏢 Sector: ${j.sector}
+                            </div>
+                            <div style="margin: 15px 0;">
+                                <strong>💻 Skills:</strong><br>
+                                ${j.skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.getElementById('skillMatchSection').style.display = 'block';
+                    document.getElementById('mySkills').value = currentProfile.skills.join(', ');
+                    showAlert('details', '✅ Detalles cargados', 'success');
+                } else {
+                    throw new Error('No encontrado');
+                }
+            } catch (e) {
+                showAlert('details', `❌ Error: ${e.message}`, 'error');
+                document.getElementById('detailsResults').innerHTML = '';
+            }
+        }
+        
+        async function getSimilarJobs() {
+            const jobId = document.getElementById('detailsJobId').value.trim();
+            if (!jobId) {
+                showAlert('details', '❌ Ingresa un Job ID', 'error');
+                return;
+            }
+            
+            loading('detailsResults');
+            
+            try {
+                const res = await fetch(`${API}/api/v1/similar-jobs/${jobId}?top_n=5`, { headers: h });
+                const data = await res.json();
+                
+                if (data.status === 'success' && data.similar_jobs.length > 0) {
+                    const html = data.similar_jobs.map(j => `
+                        <div class="card">
+                            <div class="job-title">${j.position}</div>
+                            <div class="job-company">📍 ${j.company}</div>
+                            <div>
+                                <span class="badge badge-high">Similitud: ${(j.similarity * 100).toFixed(1)}%</span>
+                            </div>
+                            <button class="btn-secondary" onclick="viewJob('${j.job_id}')">Ver Detalles</button>
+                        </div>
+                    `).join('');
+                    
+                    document.getElementById('detailsResults').innerHTML = html;
+                    showAlert('details', `✅ ${data.total} empleos similares`, 'success');
+                } else {
+                    throw new Error('Sin resultados');
+                }
+            } catch (e) {
+                showAlert('details', `❌ Error: ${e.message}`, 'error');
+                document.getElementById('detailsResults').innerHTML = '';
+            }
+        }
+        
+        async function analyzeSkills() {
+            const skills = document.getElementById('mySkills').value.split(',').map(s => s.trim());
+            loading('skillMatchResults');
+            
+            try {
+                const res = await fetch(`${API}/api/v1/job-skill-match/${currentJobId}`, {
+                    method: 'POST',
+                    headers: h,
+                    body: JSON.stringify({ skills })
+                });
+                
+                const data = await res.json();
+                
+                if (data.status === 'success') {
+                    document.getElementById('skillMatchResults').innerHTML = `
+                        <div class="card">
+                            <h4>📊 Match: ${data.skill_match_percentage}%</h4>
+                            <div style="margin: 10px 0;">
+                                <strong>✅ Skills que coinciden (${data.matched_skills.length}):</strong><br>
+                                ${data.matched_skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}
+                            </div>
+                            <div style="margin: 10px 0;">
+                                <strong>❌ Skills que faltan:</strong><br>
+                                ${data.required_skills.filter(s => !data.candidate_skills.includes(s)).map(s => `<span class="skill-tag" style="background: #f8d7da; color: #721c24;">${s}</span>`).join('')}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    throw new Error('Error');
+                }
+            } catch (e) {
+                showAlert('details', `❌ Error: ${e.message}`, 'error');
+                document.getElementById('skillMatchResults').innerHTML = '';
+            }
+        }
+        
+        async function loadDashboard() {
+            showAlert('dashboard', '⏳ Cargando dashboard...', 'info');
+            
+            // Stats
+            try {
+                const res = await fetch(`${API}/api/v1/stats`, { headers: h });
+                const data = await res.json();
+                
+                document.getElementById('statsGrid').innerHTML = `
+                    <div class="stat-card"><div class="stat-value">${data.total_jobs.toLocaleString()}</div><div class="stat-label">Empleos</div></div>
+                    <div class="stat-card"><div class="stat-value">${data.sectors}</div><div class="stat-label">Sectores</div></div>
+                    <div class="stat-card"><div class="stat-value">${data.companies.toLocaleString()}</div><div class="stat-label">Empresas</div></div>
+                    <div class="stat-card"><div class="stat-value">${data.avg_exp_required.toFixed(1)}</div><div class="stat-label">Exp. Prom.</div></div>
+                `;
+            } catch (e) {}
+            
+            // Top Companies
+            try {
+                const res = await fetch(`${API}/api/v1/dashboard/top-companies?top_n=5`, { headers: h });
+                const data = await res.json();
+                
+                const html = Object.entries(data.top_companies).map(([company, count], i) => `
+                    <div class="card">
+                        <strong>${i + 1}. ${company}</strong>
+                        <div style="color: #666; margin-top: 5px;">${count} empleos</div>
+                    </div>
+                `).join('');
+                
+                document.getElementById('topCompanies').innerHTML = html;
+            } catch (e) {}
+            
+            // Score Distribution
+            try {
+                const res = await fetch(`${API}/api/v1/dashboard/score-distribution`, { headers: h });
+                const data = await res.json();
+                
+                const html = Object.entries(data.score_distribution_by_exp_years).map(([range, count]) => `
+                    <div class="card">
+                        <strong>${range} años</strong>
+                        <div style="color: #666; margin-top: 5px;">${count} empleos</div>
+                    </div>
+                `).join('');
+                
+                document.getElementById('scoreDistribution').innerHTML = html;
+            } catch (e) {}
+            
+            // Summary
+            try {
+                const res = await fetch(`${API}/api/v1/dashboard/recommendations-summary`, { headers: h });
+                const data = await res.json();
+                
+                document.getElementById('summary').innerHTML = `
+                    <div class="card">
+                        <strong>📊 Total:</strong> ${data.total_jobs.toLocaleString()} empleos<br>
+                        <strong>⭐ Exp. Prom.:</strong> ${data.average_experience_required} años<br>
+                        <strong>💻 Top Skills:</strong><br>
+                        ${data.top_5_skills_required.map(s => `<span class="skill-tag">${s.skill} (${s.count})</span>`).join('')}
+                    </div>
+                `;
+            } catch (e) {}
+            
+            showAlert('dashboard', '✅ Dashboard actualizado', 'success');
+        }
+        
+        // Init
+        window.addEventListener('load', () => {
+            checkConnection();
+            setInterval(checkConnection, 30000);
+        });
+    </script>
+</body>
+</html>
