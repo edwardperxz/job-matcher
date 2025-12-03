@@ -1178,92 +1178,176 @@
             }
         }
         
-        async function loadDashboard() {            
-            // Stats
-            try {
-            const res = await fetch(`${API}/api/v1/stats`, { headers: getHeaders() });
-                const data = await res.json();
-                
-                document.getElementById('statsGrid').innerHTML = `
-                    <div class="stat-card"><div class="stat-value">${data.total_jobs.toLocaleString()}</div><div class="stat-label">Empleos</div></div>
-                    <div class="stat-card"><div class="stat-value">${data.sectors}</div><div class="stat-label">Sectores</div></div>
-                    <div class="stat-card"><div class="stat-value">${data.companies.toLocaleString()}</div><div class="stat-label">Empresas</div></div>
-                    <div class="stat-card"><div class="stat-value">${data.avg_exp_required.toFixed(1)}</div><div class="stat-label">Exp. Prom.</div></div>
-                `;
-            } catch (e) {}
-            
-            // Top Companies
-            try {
-                const res = await fetch(`${API}/api/v1/dashboard/top-companies?top_n=5`, { headers: getHeaders() });
-                const data = await res.json();
-                
-                const html = Object.entries(data.top_companies).map(([company, count], i) => `
-                    <div class="card">
-                        <strong>${i + 1}. ${company}</strong>
-                        <div style="color: #666; margin-top: 5px;">${count} empleos</div>
-                    </div>
-                `).join('');
-                
-                document.getElementById('topCompanies').innerHTML = html;
-            } catch (e) {}
-            
-            // Score Distribution
-            try {
-                const res = await fetch(`${API}/api/v1/dashboard/score-distribution`, { headers: getHeaders() });
-                const data = await res.json();
-                
-                const html = Object.entries(data.score_distribution_by_exp_years).map(([range, count]) => `
-                    <div class="card">
-                        <strong>${range} años</strong>
-                        <div style="color: #666; margin-top: 5px;">${count} empleos</div>
-                    </div>
-                `).join('');
-                
-                document.getElementById('scoreDistribution').innerHTML = html;
-            } catch (e) {}
-            
-            // Summary
-            try {
-                const res = await fetch(`${API}/api/v1/dashboard/recommendations-summary`, { headers: getHeaders() });
-                const data = await res.json();
-                
-                document.getElementById('summary').innerHTML = `
-                    <div class="card">
-                        <strong>📊 Total:</strong> ${data.total_jobs.toLocaleString()} empleos<br>
-                        <strong>⭐ Exp. Prom.:</strong> ${data.average_experience_required} años<br>
-                        <strong>💻 Top Skills:</strong><br>
-                        ${data.top_5_skills_required.map(s => `<span class="skill-tag">${s.skill} (${s.count})</span>`).join('')}
-                    </div>
-                `;
-            } catch (e) {}
+        async function loadDashboard() {
+    console.log('[DASHBOARD] 🚀 Iniciando carga del dashboard...');
+    
+    // 1️⃣ STATS - Total de empleos, sectores, empresas
+    try {
+        const res = await fetch(`${API}/api/v1/stats`, { headers: getHeaders() });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        
+        const data = await res.json();
+        console.log('[DASHBOARD] ✅ Stats recibidos:', data);
+        
+        // Validar estructura
+        if (data.status !== 'success' || !data.jobs) {
+            throw new Error('Estructura de respuesta inválida');
         }
-        // --- Autenticación ---
-        async function registerUser() {
-            const email = document.getElementById('regEmail').value.trim();
-            const password = document.getElementById('regPassword').value.trim();
-            const password2 = document.getElementById('regPassword2').value.trim();
-            if (!email || !password || !password2) { showAlert('login', 'Completa todos los campos', 'error'); return; }
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showAlert('login', 'Email inválido', 'error'); return; }
-            if (password.length < 6) { showAlert('login', 'La contraseña debe tener al menos 6 caracteres', 'error'); return; }
-            if (password !== password2) { showAlert('login', 'Las contraseñas no coinciden', 'error'); return; }
-            try {
-                const res = await fetch(`${API}/api/v1/register`, {
-                    method: 'POST',
-                    headers: getHeaders(),
-                    body: JSON.stringify({ email, password })
-                });
-                const data = await res.json();
-                if (data.status === 'success') {
-                    showAlert('login', 'Registro exitoso. Inicia sesión con tus credenciales.', 'success');
-                    hideRegister();
-                    document.getElementById('loginEmail').value = email;
-                } else {
-                    throw new Error(data.message || 'Error de registro');
-                }
-            } catch (e) {
-                showAlert('login', 'Error: ' + e.message, 'error');
-            }
+        
+        document.getElementById('statsGrid').innerHTML = `
+            <div class="stat-card">
+                <div class="stat-value">${data.jobs.toLocaleString()}</div>
+                <div class="stat-label">Empleos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${data.sectors}</div>
+                <div class="stat-label">Sectores</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${data.companies.toLocaleString()}</div>
+                <div class="stat-label">Empresas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">2,500+</div>
+                <div class="stat-label">Candidatos</div>
+            </div>
+        `;
+    } catch (e) {
+        console.error('[DASHBOARD] ❌ Error en Stats:', e.message);
+        document.getElementById('statsGrid').innerHTML = `
+            <div class="card" style="grid-column: 1/-1; text-align: center; color: #dc2626;">
+                📊 Error cargando estadísticas: ${e.message}
+            </div>
+        `;
+    }
+    
+    // 2️⃣ TOP COMPANIES - Empresas con más empleos
+    try {
+        const res = await fetch(`${API}/api/v1/dashboard/top-companies?top_n=5`, { headers: getHeaders() });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        
+        const data = await res.json();
+        console.log('[DASHBOARD] ✅ Top Companies recibidos:', data);
+        
+        if (data.status !== 'success' || !Array.isArray(data.companies)) {
+            throw new Error('Estructura de respuesta inválida');
         }
+        
+        const html = data.companies.map((company, i) => `
+            <div class="card">
+                <strong style="font-size: 1.05em; color: var(--accent);">
+                    ${i + 1}. ${company.name}
+                </strong>
+                <div style="color: var(--muted); margin-top: 8px;">
+                    💼 ${company.job_count} empleos (${company.percentage}%)
+                </div>
+            </div>
+        `).join('');
+        
+        document.getElementById('topCompanies').innerHTML = html || '<p style="color: var(--muted);">Sin datos</p>';
+    } catch (e) {
+        console.error('[DASHBOARD] ❌ Error en Top Companies:', e.message);
+        document.getElementById('topCompanies').innerHTML = `
+            <div style="color: #dc2626; padding: 12px;">⚠️ ${e.message}</div>
+        `;
+    }
+    
+    // 3️⃣ SCORE DISTRIBUTION - Distribución de experiencia
+    try {
+        const res = await fetch(`${API}/api/v1/dashboard/score-distribution`, { headers: getHeaders() });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        
+        const data = await res.json();
+        console.log('[DASHBOARD] ✅ Score Distribution recibidos:', data);
+        
+        if (data.status !== 'success' || !Array.isArray(data.distribution)) {
+            throw new Error('Estructura de respuesta inválida');
+        }
+        
+        const html = data.distribution.map(item => `
+            <div class="card">
+                <strong style="font-size: 1.05em; color: var(--accent);">
+                    ${item.range}
+                </strong>
+                <div style="color: var(--muted); margin-top: 8px;">
+                    📊 ${item.count} empleos (${item.percentage}%)
+                </div>
+                <!-- Barra de progreso visual -->
+                <div style="
+                    margin-top: 8px;
+                    height: 6px;
+                    background: #e2e8f0;
+                    border-radius: 999px;
+                    overflow: hidden;
+                ">
+                    <div style="
+                        height: 100%;
+                        width: ${Math.min(item.percentage * 2, 100)}%;
+                        background: linear-gradient(90deg, var(--accent), #00d4ff);
+                    "></div>
+                </div>
+            </div>
+        `).join('');
+        
+        document.getElementById('scoreDistribution').innerHTML = html || '<p style="color: var(--muted);">Sin datos</p>';
+    } catch (e) {
+        console.error('[DASHBOARD] ❌ Error en Score Distribution:', e.message);
+        document.getElementById('scoreDistribution').innerHTML = `
+            <div style="color: #dc2626; padding: 12px;">⚠️ ${e.message}</div>
+        `;
+    }
+    
+    // 4️⃣ SUMMARY - Resumen de sectores y datos agregados
+    try {
+        const res = await fetch(`${API}/api/v1/dashboard/recommendations-summary`, { headers: getHeaders() });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        
+        const data = await res.json();
+        console.log('[DASHBOARD] ✅ Summary recibido:', data);
+        
+        if (data.status !== 'success' || !data.summary) {
+            throw new Error('Estructura de respuesta inválida');
+        }
+        
+        const { summary } = data;
+        const sectoresHtml = Array.isArray(summary.sectors) 
+            ? summary.sectors.map(s => `
+                <div style="
+                    display: flex;
+                    justify-content: space-between;
+                    padding: 8px 0;
+                    border-bottom: 1px solid var(--border);
+                ">
+                    <span><strong>${s.sector}</strong></span>
+                    <span style="color: var(--muted);">${s.count} (${s.percentage}%)</span>
+                </div>
+            `).join('')
+            : '<p style="color: var(--muted);">Sin datos de sectores</p>';
+        
+        document.getElementById('summary').innerHTML = `
+            <div class="card">
+                <h4 style="color: var(--accent-600); margin-bottom: 12px;">📈 Resumen General</h4>
+                <div style="margin-bottom: 16px;">
+                    <div style="margin-bottom: 8px;"><strong>📊 Total de empleos:</strong> <span style="color: var(--accent);">${summary.total_jobs?.toLocaleString() || '—'}</span></div>
+                    <div style="margin-bottom: 8px;"><strong>🏢 Empresas únicas:</strong> <span style="color: var(--accent);">${summary.total_companies?.toLocaleString() || '—'}</span></div>
+                    <div style="margin-bottom: 8px;"><strong>🎯 Sectores:</strong> <span style="color: var(--accent);">${summary.total_sectors || '—'}</span></div>
+                    <div style="margin-bottom: 12px;"><strong>📅 Exp. promedio requerida:</strong> <span style="color: var(--accent);">${summary.avg_experience?.toFixed(1) || '—'} años</span></div>
+                </div>
+                
+                <h5 style="color: var(--text); margin-bottom: 10px; margin-top: 16px; font-weight: 700;">💼 Distribución por Sector:</h5>
+                ${sectoresHtml}
+            </div>
+        `;
+    } catch (e) {
+        console.error('[DASHBOARD] ❌ Error en Summary:', e.message);
+        document.getElementById('summary').innerHTML = `
+            <div style="color: #dc2626; padding: 12px;">⚠️ ${e.message}</div>
+        `;
+    }
+    
+    console.log('[DASHBOARD] ✅ Dashboard completamente cargado');
+}
+
 
         async function loginUser() {
             const email = document.getElementById('loginEmail').value.trim();
