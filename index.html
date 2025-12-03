@@ -1142,41 +1142,126 @@
             }
         }
         
-        async function analyzeSkills() {
-            const skills = document.getElementById('mySkills').value.split(',').map(s => s.trim());
-            loading('skillMatchResults');
+async function analyzeSkills() {
+    const skills = document.getElementById('mySkills').value.split(',').map(s => s.trim()).filter(Boolean);
+    
+    if (skills.length === 0) {
+        showAlert('details', '❌ Ingresa al menos un skill', 'error');
+        return;
+    }
+    
+    loading('skillMatchResults');
+    
+    try {
+        const res = await fetch(`${API}/api/v1/job-skill-match/${currentJobId}`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify({ skills })
+        });
+        
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        
+        const data = await res.json();
+        console.log('[SKILL MATCH] Respuesta:', data);
+        
+        if (data.status === 'success') {
+            // ✅ Asegurar que el porcentaje se muestre correctamente
+            const matchPct = Number(data.match_percentage || 0).toFixed(2);
             
-            try {
-                const res = await fetch(`${API}/api/v1/job-skill-match/${currentJobId}`, {
-                    method: 'POST',
-                    headers: getHeaders(),
-                    body: JSON.stringify({ skills })
-                });
-                
-                const data = await res.json();
-                
-                if (data.status === 'success') {
-                    document.getElementById('skillMatchResults').innerHTML = `
-                        <div class="card">
-                            <h4>📊 Match: ${data.skill_match_percentage}%</h4>
-                            <div style="margin: 10px 0;">
-                                <strong>✅ Skills que coinciden (${data.matched_skills.length}):</strong><br>
-                                ${data.matched_skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}
-                            </div>
-                            <div style="margin: 10px 0;">
-                                <strong>❌ Skills que faltan:</strong><br>
-                                ${data.required_skills.filter(s => !data.candidate_skills.includes(s)).map(s => `<span class="skill-tag" style="background: #f8d7da; color: #721c24;">${s}</span>`).join('')}
+            // Calcular skills que faltan
+            const skillsFaltantes = data.required_skills.filter(s => 
+                !data.candidate_skills.includes(s)
+            );
+            
+            // Calcular barra de progreso visual
+            const pctNum = Number(matchPct);
+            const barColor = pctNum >= 75 ? '#22c55e' : pctNum >= 50 ? '#eab308' : '#ef4444';
+            
+            document.getElementById('skillMatchResults').innerHTML = `
+                <div class="card">
+                    <div style="margin-bottom: 16px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <strong>📊 Match: ${matchPct}%</strong>
+                            <span style="font-size: 0.85em; color: #666;">
+                                ${data.matched_skills.length} de ${data.required_skills.length} skills
+                            </span>
+                        </div>
+                        <!-- Barra de progreso -->
+                        <div style="
+                            width: 100%;
+                            height: 8px;
+                            background: #e2e8f0;
+                            border-radius: 999px;
+                            overflow: hidden;
+                        ">
+                            <div style="
+                                height: 100%;
+                                width: ${matchPct}%;
+                                background: ${barColor};
+                                transition: width 0.4s ease;
+                            "></div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin: 14px 0;">
+                        <strong style="color: #22c55e;">✅ Skills que coinciden (${data.matched_skills.length}):</strong><br>
+                        <div style="margin-top: 8px;">
+                            ${data.matched_skills.length > 0 
+                                ? data.matched_skills.map(s => `<span class="skill-tag">${s}</span>`).join('')
+                                : '<span style="color: #666; font-size: 0.9em;">Sin coincidencias</span>'
+                            }
+                        </div>
+                    </div>
+                    
+                    ${skillsFaltantes.length > 0 ? `
+                        <div style="margin: 14px 0; padding-top: 14px; border-top: 1px solid var(--border);">
+                            <strong style="color: #dc2626;">❌ Skills que faltan (${skillsFaltantes.length}):</strong><br>
+                            <div style="margin-top: 8px;">
+                                ${skillsFaltantes.map(s => 
+                                    `<span class="skill-tag" style="background: #fee2e2; color: #991b1b;">${s}</span>`
+                                ).join('')}
                             </div>
                         </div>
-                    `;
-                } else {
-                    throw new Error('Error');
-                }
-            } catch (e) {
-                showAlert('details', `❌ Error: ${e.message}`, 'error');
-                document.getElementById('skillMatchResults').innerHTML = '';
-            }
+                    ` : ''}
+                    
+                    <div style="
+                        margin-top: 16px;
+                        padding: 12px;
+                        background: ${pctNum >= 75 ? '#ecfdf5' : pctNum >= 50 ? '#fefce8' : '#fef2f2'};
+                        border-radius: 10px;
+                        border-left: 4px solid ${barColor};
+                    ">
+                        <strong style="font-size: 0.95em;">
+                            ${pctNum >= 75 
+                                ? '🎉 ¡Excelente match! Tienes la mayoría de skills requeridos.' 
+                                : pctNum >= 50 
+                                ? '⚠️ Match moderado. Considere aprender los skills faltantes.' 
+                                : '📚 Match bajo. Hay muchos skills por aprender.'}
+                        </strong>
+                    </div>
+                </div>
+            `;
+            
+            showAlert('details', '✅ Análisis completado', 'success');
+        } else {
+            throw new Error(data.detail || 'Error en análisis');
         }
+    } catch (e) {
+        console.error('[SKILL MATCH] Error:', e);
+        showAlert('details', `❌ Error: ${e.message}`, 'error');
+        document.getElementById('skillMatchResults').innerHTML = `
+            <div style="
+                padding: 16px;
+                background: #fef2f2;
+                border: 1px solid #fecaca;
+                border-radius: 10px;
+                color: #991b1b;
+            ">
+                ⚠️ ${e.message}
+            </div>
+        `;
+    }
+}
         
         async function loadDashboard() {
     console.log('[DASHBOARD] 🚀 Iniciando carga del dashboard...');
