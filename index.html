@@ -988,7 +988,7 @@
                             <div class="job-title">${j.position}</div>
                             <div class="job-company">📍 ${j.company}</div>
                             <div>
-                                <span class="badge badge-high">Similitud: ${(j.similarity_score * 100).toFixed(1)}%</span>
+                                <span class="badge badge-high">Similitud: ${(j.similarity * 100).toFixed(1)}%</span>
                             </div>
                             <div style="margin-top: 10px; color: #666; font-size: 0.9em;">${j.description}</div>
                             <button class="btn-secondary" onclick="viewJob('${j.job_id}')">Ver Detalles</button>
